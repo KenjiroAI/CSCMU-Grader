@@ -39,10 +39,10 @@ from sqlalchemy.orm import relationship, backref
 from . import Base, Contest
 
 
-def generate_random_password():
+def generate_random_password(length=6):
     import random
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return "".join([random.choice(chars) for _ in xrange(6)])
+    return "".join([random.choice(chars) for _ in xrange(length)])
 
 
 class User(Base):

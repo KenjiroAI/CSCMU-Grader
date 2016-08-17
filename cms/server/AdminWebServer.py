@@ -52,6 +52,7 @@ from cms.io import WebService
 from cms.db import Session, Contest, User, Announcement, Question, Message, \
     Submission, File, Task, Dataset, Attachment, Manager, Testcase, \
     SubmissionFormatElement, Statement
+from cms.db.user import generate_random_password
 from cms.db.filecacher import FileCacher
 from cms.grading import compute_changes_for_dataset
 from cms.grading.tasktypes import get_task_type_class
@@ -1696,7 +1697,13 @@ class UserViewHandler(BaseHandler):
             self.get_string(attrs, "first_name")
             self.get_string(attrs, "last_name")
             self.get_string(attrs, "username", empty=None)
-            self.get_string(attrs, "password")
+            self.get_string(attrs, "password", empty=None)
+
+            # Random Password
+            if attrs["password"] is None:
+                attrs["password"] = generate_random_password(
+                    config.random_password_length)
+
             self.get_string(attrs, "email")
 
             assert attrs.get("username") is not None, \
@@ -1740,7 +1747,13 @@ class AddUserHandler(SimpleContestHandler("add_user.html")):
             self.get_string(attrs, "first_name")
             self.get_string(attrs, "last_name")
             self.get_string(attrs, "username", empty=None)
-            self.get_string(attrs, "password")
+            self.get_string(attrs, "password", empty=None)
+
+            # Random Password
+            if attrs["password"] is None:
+                attrs["password"] = generate_random_password(
+                    config.random_password_length)
+
             self.get_string(attrs, "email")
 
             assert attrs.get("username") is not None, \
