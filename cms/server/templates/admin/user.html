@@ -185,6 +185,10 @@ function update_additional_answer(element, invoker)
         <td><input type="text" name="email" value="{{ selected_user.email if selected_user.email is not None else "" }}"/></td>
       </tr>
       <tr>
+        <td>Accessible Contest (List of accessible contests by using comma as delimiter OR empty for allow to access all of contests)</td>
+        <td><input type="text" name="accessible_contest" value="{{ selected_user.accessible_contest }}"></td>
+      </tr>
+      <tr>
         <td>IP address or subnet</td>
         <td><input type="text" name="ip" value="{{ selected_user.ip if selected_user.ip is not None else "" }}"/></td>
       </tr>
@@ -211,10 +215,6 @@ function update_additional_answer(element, invoker)
       <tr>
         <td>Primary statements (JSON-encoded dict whose keys are task names and whose values are lists of language codes)</td>
         <td><input type="text" name="primary_statements" value="{{ selected_user.primary_statements }}"></td>
-      </tr>
-      <tr>
-        <td>Accessible Contest (List of accessible contests by using comma as delimiter OR empty for allow to access all of contests)</td>
-        <td><input type="text" name="accessible_contest" value="{{ selected_user.accessible_contest }}"></td>
       </tr>
     </table>
     <input type="submit" value="Update" />

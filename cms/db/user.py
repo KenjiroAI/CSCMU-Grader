@@ -83,13 +83,13 @@ class User(Base):
         Unicode,
         nullable=True)
 
-    # User can log in CWS only from this IP address or subnet.
-    ip = Column(
+    # Accessible Contest
+    accessible_contest = Column(
         Unicode,
         nullable=True)
 
-    # Accessible Contest
-    accessible_contest = Column(
+    # User can log in CWS only from this IP address or subnet.
+    ip = Column(
         Unicode,
         nullable=True)
 

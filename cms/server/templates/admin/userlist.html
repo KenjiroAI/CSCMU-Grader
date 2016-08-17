@@ -13,7 +13,10 @@
   {% end %}
 {% end %}
 
-<a href="{{ url_root }}/add_user/{{ contest.id }}">Add a new user</a>
+<a href="{{ url_root }}/add_user/{{ contest.id }}">Add a new user</a> |
+<a href="{{ url_root }}/import_user/{{ contest.id }}">Import user</a> |
+<a href="{{ url_root }}/export_user/{{ contest.id }}">Export user</a>
+
 <table class="bordered">
   <thead>
     <tr>

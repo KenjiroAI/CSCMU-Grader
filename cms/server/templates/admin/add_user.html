@@ -31,6 +31,10 @@
         <td><input type="text" name="email" /></td>
       </tr>
       <tr>
+        <td>Accessible Contest (List of accessible contests by using comma as delimiter OR empty for allow to access all of contests)</td>
+        <td><input type="text" name="accessible_contest" value=""></td>
+      </tr>
+      <tr>
         <td>IP address or subnet</td>
         <td><input type="text" name="ip" /></td>
       </tr>
@@ -57,10 +61,6 @@
       <tr>
         <td>Primary statements (JSON-encoded dict whose keys are task names and whose values are lists of language codes)</td>
         <td><input type="text" name="primary_statements" value="{}"></td>
-      </tr>
-      <tr>
-        <td>Accessible Contest (List of accessible contests by using comma as delimiter OR empty for allow to access all of contests)</td>
-        <td><input type="text" name="accessible_contest" value=""></td>
       </tr>
     </table>
     <input type="submit"/>

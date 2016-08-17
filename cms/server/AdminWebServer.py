@@ -32,6 +32,7 @@ from __future__ import unicode_literals
 
 import base64
 import json
+import csv
 import logging
 import os
 import pkg_resources
@@ -1791,6 +1792,94 @@ class AddUserHandler(SimpleContestHandler("add_user.html")):
             self.redirect("/add_user/%s" % contest_id)
 
 
+class ImportUserHandler(BaseHandler):
+    def get(self, contest_id):
+        self.contest = self.safe_get_item(Contest, contest_id)
+        self.r_params = self.render_params()
+        self.render("import_user.html", **self.r_params)
+
+    def post(self, contest_id):
+        self.contest = self.safe_get_item(Contest, contest_id)
+        users_csv = self.request.files['users_csv'][0]['body']
+
+        duplicate_list = list()
+
+        for r in csv.DictReader(users_csv.splitlines()):
+            attrs = dict()
+            attrs["first_name"] = r["first_name"]
+            attrs["last_name"] = r["last_name"]
+            attrs["username"] = r["username"]
+            attrs["password"] = r["password"]
+            attrs["email"] = r["email"]
+            attrs["accessible_contest"] = r["accessible_contest"]
+
+            if r["ip"] != "":
+                attrs["ip"] = r["ip"]
+            else:
+                attrs["ip"] = None
+
+            if r["timezone"] != "":
+                attrs["timezone"] = r["timezone"]
+            else:
+                attrs["timezone"] = None
+
+            if r["hidden"] == "True":
+                attrs["hidden"] = True
+            else:
+                attrs["hidden"] = False
+
+            attrs["contest"] = self.contest
+
+            # Check Duplicate
+            user = self.sql_session.query(User)\
+                .filter(User.contest == self.contest)\
+                .filter(User.username == attrs["username"]).first()
+
+            if user is not None:
+                duplicate_list.append(attrs["username"])
+
+            else:
+                user = User(**attrs)
+                self.sql_session.add(user)
+
+            del user
+
+        if len(duplicate_list) > 0:
+            duplicate_list = ", ".join(duplicate_list)
+            self.application.service.add_notification(
+                make_datetime(),
+                "Duplicate Username", duplicate_list)
+
+        if try_commit(self.sql_session, self):
+            # Create the user on RWS.
+            self.application.service.proxy_service.reinitialize()
+            self.redirect("/userlist/%s" % contest_id)
+        else:
+            self.redirect("/import_user/%s" % contest_id)
+
+
+class ExportUserHandler(BaseHandler):
+    def get(self, contest_id):
+        if contest_id is not None:
+            self.contest = self.safe_get_item(Contest, contest_id)
+            users = self.contest.users
+        else:
+            users = list()
+
+        self.set_header("Content-Type", "text/csv")
+        self.set_header("Content-Disposition",
+                        "attachment; filename=\"users.csv\"")
+        self.render("users.csv", users=users)
+
+
+class ExampleUserCSVHandler(BaseHandler):
+    def get(self):
+        self.set_header("Content-Type", "text/csv")
+        self.set_header("Content-Disposition",
+                        "attachment; filename=\"users_example.csv\"")
+        self.render("users_example.csv")
+
+
 class SubmissionViewHandler(BaseHandler):
     """Shows the details of a submission. All data is already present
     in the list of the submissions of the task or of the user, but we
@@ -2027,6 +2116,9 @@ _aws_handlers = [
     (r"/delete_testcase/([0-9]+)", DeleteTestcaseHandler),
     (r"/user/([0-9]+)", UserViewHandler),
     (r"/add_user/([0-9]+)", AddUserHandler),
+    (r"/import_user/([0-9]+)", ImportUserHandler),
+    (r"/export_user/([0-9]+)", ExportUserHandler),
+    (r"/import_user/example", ExampleUserCSVHandler),
     (r"/add_announcement/([0-9]+)", AddAnnouncementHandler),
     (r"/remove_announcement/([0-9]+)", RemoveAnnouncementHandler),
     (r"/submission/([0-9]+)(?:/([0-9]+))?", SubmissionViewHandler),
