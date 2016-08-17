@@ -172,7 +172,7 @@
 
     "_section": "Customize",
     "main_contest_id": 1,
-
+    "random_password_length": 8,
 
 
     "_help": "This is the end of this file."
