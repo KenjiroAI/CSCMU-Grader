@@ -68,7 +68,7 @@ from werkzeug.datastructures import LanguageAccept
 from cms import SOURCE_EXT_TO_LANGUAGE_MAP, ConfigError, config, ServiceCoord
 from cms.io import WebService
 from cms.db import Session, Contest, User, Task, Question, Submission, Token, \
-    File, UserTest, UserTestFile, UserTestManager, PrintJob
+    File, UserTest, UserTestFile, UserTestManager, PrintJob, is_contest_id
 from cms.db.filecacher import FileCacher
 from cms.grading.tasktypes import get_task_type
 from cms.grading.scoretypes import get_score_type
@@ -105,6 +105,26 @@ def check_ip(client, wanted):
     return (wanted & snmask) == (client & snmask)
 
 
+def valid_accessible_contest_id(accessible_contest, contest_id):
+    # All Contest
+    if accessible_contest == "":
+        return contest_id
+
+    # Limit Contest
+    else:
+        accessible_contest_list = accessible_contest.split(",")
+
+        # Valid accessible contest by current user
+        if str(contest_id) in accessible_contest_list:
+            return contest_id
+
+        # Select first accessible contest
+        # IF cookie's contest is not accessible by current user
+        # (Prevent Cookie Hijacking)
+        else:
+            return accessible_contest_list[0]
+
+
 class BaseHandler(CommonRequestHandler):
     """Base RequestHandler for this application.
 
@@ -127,8 +147,51 @@ class BaseHandler(CommonRequestHandler):
         self.set_header("Cache-Control", "no-cache, must-revalidate")
 
         self.sql_session = Session()
-        self.contest = Contest.get_from_id(self.application.service.contest,
-                                           self.sql_session)
+
+        self.main_contest_id = config.main_contest_id
+        self.main_contest = Contest.get_from_id(
+            self.main_contest_id, self.sql_session)
+
+        self.user = self.get_current_user()
+
+        contest_id = self.main_contest_id  # Set default
+
+        if self.user is not None:
+            self.accessible_contest = self.user.accessible_contest
+
+            # Cookie found; Parse from cookie
+            if self.get_secure_cookie("contest_id") is not None:
+                try:
+                    cookie_contest_id = pickle.loads(
+                        self.get_secure_cookie("contest_id"))
+                    contest_id = valid_accessible_contest_id(
+                        self.accessible_contest, cookie_contest_id[0])
+                except:
+                    # Cookie is invalid
+                    self.clear_cookie("contest_id")
+
+            # Cookie not found; Set to first accessible contest
+            else:
+                if self.accessible_contest != "":
+                    contest_id = self.accessible_contest[0]
+
+                self.set_secure_cookie(
+                    "contest_id",
+                    pickle.dumps((contest_id, make_timestamp())),
+                    expires_days=None)
+
+            # Check contest exist
+            if not is_contest_id(contest_id):
+                logger.error(
+                    "Contest not found; user=%s, remote_ip=%s, contest=%s",
+                    self.user.username,
+                    self.request.remote_ip,
+                    str(contest_id))
+
+                # Set to default
+                contest_id = self.main_contest_id
+
+        self.contest = Contest.get_from_id(contest_id, self.sql_session)
 
         self._ = self.locale.translate
 
@@ -162,7 +225,7 @@ class BaseHandler(CommonRequestHandler):
 
         # Load the user from DB.
         user = self.sql_session.query(User)\
-            .filter(User.contest == self.contest)\
+            .filter(User.contest == self.main_contest)\
             .filter(User.username == username).first()
 
         # Check if user exists and is allowed to login.
@@ -485,6 +548,58 @@ class ContestWebServer(WebService):
         self.notifications[username].append((timestamp, subject, text, level))
 
 
+class SelectContestHandler(BaseHandler):
+    """Select Contest
+
+    """
+    def get(self, contest_id):
+        accessible_contest_list = self.accessible_contest.split(",")
+
+        if is_contest_id(contest_id) and \
+            (self.accessible_contest == "" or
+                str(contest_id) in accessible_contest_list):
+
+            # Clear Cookie
+            self.clear_cookie("contest_id")
+
+            contest_id = valid_accessible_contest_id(
+                self.accessible_contest, contest_id)
+
+            self.set_secure_cookie(
+                "contest_id",
+                pickle.dumps((contest_id, make_timestamp())),
+                expires_days=None)
+
+            self.application.service.add_notification(
+                self.current_user.username,
+                self.timestamp,
+                self._("Changing Contest Successful"),
+                self._("Happy Codings :P"),
+                ContestWebServer.NOTIFICATION_SUCCESS)
+
+            logger.success(
+                "Select Contest; user=%s, remote_ip=%s, contest=%s",
+                self.user.username,
+                self.request.remote_ip,
+                str(contest_id))
+
+        else:
+            self.application.service.add_notification(
+                self.current_user.username,
+                self.timestamp,
+                self._("Changing Contest Unsuccessful"),
+                self._("Contest not exist or Permission denied"),
+                ContestWebServer.NOTIFICATION_ERROR)
+
+            logger.error(
+                "Select Contest; user=%s, remote_ip=%s, contest=%s",
+                self.user.username,
+                self.request.remote_ip,
+                str(contest_id))
+
+        self.redirect("/")
+
+
 class MainHandler(BaseHandler):
     """Home page handler.
 
@@ -569,6 +684,7 @@ class LogoutHandler(BaseHandler):
     """
     def get(self):
         self.clear_cookie("login")
+        self.clear_cookie("contest_id")
         self.redirect("/")
 
 
@@ -2054,4 +2170,5 @@ _cws_handlers = [
     (r"/testing", UserTestInterfaceHandler),
     (r"/printing", PrintingHandler),
     (r"/stl/(.*)", StaticFileGzHandler, {"path": config.stl_path}),
+    (r"/contest/([1-9][0-9]*)", SelectContestHandler),
 ]

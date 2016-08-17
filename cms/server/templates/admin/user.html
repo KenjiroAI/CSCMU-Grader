@@ -212,6 +212,10 @@ function update_additional_answer(element, invoker)
         <td>Primary statements (JSON-encoded dict whose keys are task names and whose values are lists of language codes)</td>
         <td><input type="text" name="primary_statements" value="{{ selected_user.primary_statements }}"></td>
       </tr>
+      <tr>
+        <td>Accessible Contest (List of accessible contests by using comma as delimiter OR empty for allow to access all of contests)</td>
+        <td><input type="text" name="accessible_contest" value="{{ selected_user.accessible_contest }}"></td>
+      </tr>
     </table>
     <input type="submit" value="Update" />
     <input type="reset" value="Reset" />

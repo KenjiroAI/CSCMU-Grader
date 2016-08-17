@@ -1,6 +1,7 @@
 {% import time %}
 {% import json %}
 {% from cms import DEFAULT_LANGUAGES, LANGUAGE_NAMES, LANGUAGES, config %}
+{% from cms.db import is_contest_id %}
 {% from cmscommon.datetime import make_timestamp %}
 {% from cmscommon.crypto import get_hex_random_key %}
 <html>
@@ -76,6 +77,9 @@ $(document).ready(init);
         <ul class="menu">
           <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/{% if contest is not None %}{{ contest.id }}{% end %}">Overview</a></li>
           <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/resourceslist{% if contest is not None %}/{{ contest.id }}{% end %}">Resource usage</a></li>
+          {% if is_contest_id(1) %}
+          <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/userlist/1">Users</a></li>
+          {% end %}
         </ul>
         <div class="hr"></div>
         <select id="contest_selection_select" onchange="utils.switch_contest()">
@@ -99,7 +103,6 @@ $(document).ready(init);
           <ul class="menu">
             <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/contest/{{ contest.id }}">General</a></li>
             <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/ranking/{{ contest.id }}">Ranking</a></li>
-            <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/userlist/{{ contest.id }}">Users</a></li>
             <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/tasklist/{{ contest.id }}">Tasks</a></li>
             <li class="menu_entry"><a class="menu_link" href="{{ url_root }}/announcements/{{ contest.id }}">Announcements</a></li>
             <li class="menu_entry">

@@ -88,6 +88,11 @@ class User(Base):
         Unicode,
         nullable=True)
 
+    # Accessible Contest
+    accessible_contest = Column(
+        Unicode,
+        nullable=True)
+
     # A hidden user is used only for debugging purpose.
     hidden = Column(
         Boolean,

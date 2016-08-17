@@ -3,6 +3,7 @@
 {% import json %}
 {% from cms import LANGUAGE_NAMES, LANGUAGE_TO_SOURCE_EXT_MAP %}
 {% from cms.server import format_amount_of_time, format_time, format_datetime, format_datetime_smart, get_score_class, encode_for_url %}
+{% from cms.db import Session, Contest %}
 {% from cms.grading import COMPILATION_MESSAGES, EVALUATION_MESSAGES %}
 {% from cmscommon.datetime import make_timestamp, utc %}
 {% from cmscommon.isocodes import translate_language_country_code %}
@@ -145,7 +146,18 @@ $(document).ready(function () {
                     </h3>
                     <div class="well" style="padding: 8px 0;">
                         <ul class="nav nav-list">
-
+                            <li class="nav-header">
+                                Contest
+                            </li>
+                            {% set sql_session = Session() %}
+                            {% set accessible_contest = current_user.accessible_contest.split(",") %}
+                            {% set contests_list = sorted(sql_session.query(Contest).all(), key=lambda c: c.id) %}
+                            {% for i, c in enumerate(contests_list) %}
+                                {% if current_user.accessible_contest == "" or str(c.id) in accessible_contest %}
+                                <li><a href="/contest/{{c.id}}" >{{c.name}}</a></li>
+                                {% end %}
+                            {% end %}
+                            <li class="divider"></li>
                             <li{% if request.path == '/' %} class="active"{% end %}>
                                 <a href="{{ url_root }}/">{{ _("Overview") }}</a>
                             </li>
