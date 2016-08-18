@@ -1,23 +1,18 @@
 {% extends base.html %}
 {% block core %}
 
-<div class="span9">
+<h1 class="ui header">
+    <i class="warning sign icon"></i>
+    <div class="content">
+        {{ _("Error") }}
+        <div class="sub header">{{ status_code }}</div>
+    </div>
+</h1>
 
-<div class="page-header">
-    <h1>{{ _("Error %d") % status_code }}</h1>
-</div>
+<p>{{ _("An error occured while the server was handling your request.") }}</p>
 
-<p>
-{{ _("An error occured while the server was handling your request.") }}
-</p>
+<p>{{ _("Note that attempts to tamper with Contest Management System (such as probing the server with customized URLs) may be considered cheating and may lead to disqualification.") }}</p>
 
-<p>
-{{ _("Note that attempts to tamper with Contest Management System (such as probing the server with customized URLs) may be considered cheating and may lead to disqualification.") }}
-</p>
+<p>{{ _("If you encountered this error during normal usage, please notify the contest administrators.") }}</p>
 
-<p>
-{{ _("If you encountered this error during normal usage, please notify the contest administrators.") }}
-</p>
-
-</div>
 {% end %}

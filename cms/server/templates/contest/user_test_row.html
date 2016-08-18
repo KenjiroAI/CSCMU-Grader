@@ -28,7 +28,7 @@
     {% raw col1 %}
     <td class="status">
         {{ _("Executed") }}
-        <a class="details">{{ _("details") }}</a>
+        <a class="details">{{ _("Details") }}</a>
     </td>
 {% end %}
 {% if tr is None or tr.execution_time is None %}
@@ -50,22 +50,22 @@
     </td>
 {% end %}
     <td class="input">
-        <a class="btn" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/input">
+        <a class="tiny ui green button" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/input">
             {{ _("Download") }}
         </a>
     </td>
     <td class="output">
     {% if tr is None or not tr.compiled() or (tr.compilation_outcome == 'ok' and not tr.evaluated()) %}
-        <a class="btn btn-primary disabled">
+        <a class="tiny ui button disabled">
             {{ _("Wait...") }}
         </a>
     {% else %}
         {% if tr.output is None %}
-        <a class="btn btn-primary disabled">
+        <a class="tiny ui button disabled">
             {{ _("N/A") }}
         </a>
         {% else %}
-        <a class="btn btn-primary" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/output">
+        <a class="tiny ui green button" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/output">
             {{ _("Download") }}
         </a>
         {% end %}
@@ -77,35 +77,31 @@
         {% comment the common case. Yet, it still allows the marginal case of both 'foo.%l' and 'foo.c' in the submission format. %}
         {% set files = t.files.keys() + t.managers.keys() %}
         {% if len(files) == 0 %}
-        <a class="btn disabled">
-            {{ _("None") }}
-        </a>
+            <a class="tiny ui button disabled">
+                {{ _("None") }}
+            </a>
         {% elif len(files) == 1 %}
             {% set filename = t.files.keys()[0] %}
-        <a class="btn" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/files/{{ encode_for_url(filename) }}">
-            {{ _("Download") }}
-        </a>
-        {% else %}
-        <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown">
+            <a class="tiny ui green button" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/files/{{ encode_for_url(filename) }}">
                 {{ _("Download") }}
-                <span class="caret"></span>
             </a>
-            <ul class="dropdown-menu">
-            {% for filename in files %}
-                {% if t.language is not None %}
-                    {% set real_filename = filename.replace("%l", t.language) %}
-                {% else %}
-                    {% set real_filename = filename %}
-                {% end %}
-                <li>
-                    <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/files/{{ encode_for_url(filename) }}">
-                        {{ real_filename }}
-                    </a>
-                </li>
-            {% end %}
-            </ul>
-        </div>
+        {% else %}
+            <div class="ui compact menu">
+                <div class="ui simple dropdown item">
+                    {{ _("Download") }}
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                    {% for filename in files %}
+                        {% if t.language is not None %}
+                            {% set real_filename = filename.replace("%l", t.language) %}
+                        {% else %}
+                            {% set real_filename = filename %}
+                        {% end %}
+                            <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/tests/{{ t_idx }}/files/{{ encode_for_url(filename) }}" class="item">{{ real_filename }}</div>
+                    {% end %}
+                    </div>
+                </div>
+            </div>
         {% end %}
     </td>
 </tr>

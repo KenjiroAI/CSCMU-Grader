@@ -3,20 +3,20 @@
 
 {% if details is not None %}
 <div class="score_details">
-{% raw details %}
+    {% raw details %}
 </div>
 {% end %}
 
 {% if sr is not None and sr.compiled() %}
 <h3>{{ _("Compilation output") }}</h3>{% comment TODO: trim long outputs and add facility to see raw %}
-<table class="table table-bordered" style="table-layout: fixed;">
+<table class="ui celled unstackable table" style="table-layout: fixed;">
     <tbody>
         <tr>
-            <th>{{ _("Compilation outcome:") }}</th>
+            <td>{{ _("Compilation outcome:") }}</td>
             <td>{{ format_status_text(sr.compilation_text, _) }}</td>
         </tr>
         <tr>
-            <th>{{ _("Compilation time:") }}</th>
+            <td>{{ _("Compilation time:") }}</td>
             <td>
 {% if sr.compilation_time is None %}
     {{ _("N/A") }}
@@ -25,7 +25,7 @@
 {% end %}
             </td>
         </tr>
-            <th>{{ _("Memory used:") }}</th>
+            <td>{{ _("Memory used:") }}</td>
             <td>
 {% if sr.compilation_memory is None %}
     {{ _("N/A") }}
@@ -44,4 +44,5 @@
 <h4>{{ _("Standard error") }}</h4>
 <pre>{{ sr.compilation_stderr }}</pre>
 {% end %}
+
 {% end %}

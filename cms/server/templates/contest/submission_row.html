@@ -20,7 +20,7 @@
     {% raw col1 %}
     <td class="status">
         {{ _("Compilation failed") }}
-        <a class="details">{{ _("details") }}</a>
+        <a class="details">{{ _("Details") }}</a>
     </td>
     {% if score_type is not None and score_type.max_public_score != 0 %}
     <td class="public_score undefined">{{ _("N/A") }}</td>
@@ -57,7 +57,7 @@
     {% raw col1 %}
     <td class="status">
         {{ _("Evaluated") }}
-        <a class="details">{{ _("details") }}</a>
+        <a class="details">{{ _("Details") }}</a>
     </td>
 
     {% if score_type is not None and score_type.max_public_score != 0 %}
@@ -89,55 +89,51 @@
         {% comment there isn't another file with that name. This allows to securily reverse the replacement and should work great in %}
         {% comment the common case. Yet, it still allows the marginal case of both 'foo.%l' and 'foo.c' in the submission format. %}
         {% if len(s.files) == 0 %}
-        <a class="btn disabled">
-            {{ _("None") }}
-        </a>
+            <a class="tiny ui button disabled">
+                {{ _("None") }}
+            </a>
         {% elif len(s.files) == 1 %}
             {% set filename = s.files.keys()[0] %}
             {% if s.language is not None %}
                 {% set filename = re.sub("\.%l$", ".%s" % s.language, filename) %}
             {% end %}
-        <a class="btn" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/{{ s_idx }}/files/{{ encode_for_url(filename) }}">
-            {{ _("Download") }}
-        </a>
-        {% else %}
-        <div class="btn-group">
-            <a class="btn dropdown-toggle" data-toggle="dropdown">
+            <a class="tiny ui green button" href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/{{ s_idx }}/files/{{ encode_for_url(filename) }}">
                 {{ _("Download") }}
-                <span class="caret"></span>
             </a>
-            <ul class="dropdown-menu">
-            {% for filename in s.files %}
-                {% if s.language is not None %}
-                    {% set temp_filename = re.sub("\.%l$", ".%s" % s.language, filename) %}
-                    {% if temp_filename not in s.files %}
-                        {% set filename = temp_filename %}
+        {% else %}
+            <div class="ui compact menu">
+                <div class="ui simple dropdown item">
+                    {{ _("Download") }}
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                    {% for filename in s.files %}
+                        {% if s.language is not None %}
+                            {% set temp_filename = re.sub("\.%l$", ".%s" % s.language, filename) %}
+                            {% if temp_filename not in s.files %}
+                                {% set filename = temp_filename %}
+                            {% end %}
+                        {% end %}
+                        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/{{ s_idx }}/files/{{ encode_for_url(filename) }}" class="item">{{ filename }}</div>
                     {% end %}
-                {% end %}
-                <li>
-                    <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/{{ s_idx }}/files/{{ encode_for_url(filename) }}">
-                        {{ filename }}
-                    </a>
-                </li>
-            {% end %}
-            </ul>
-        </div>
+                    </div>
+                </div>
+            </div>
         {% end %}
     </td>
 {% if tokens_contest != 0 and tokens_tasks != 0 %}
     <td class="token">
         {% if s.token is not None %}
-        <a class="btn disabled">{{ _("Played") }}</a>
+        <a class="tiny ui button disabled">{{ _("Played") }}</a>
         {% else %}
             {% comment TODO If the expiration or generation time are greater than valid_phase_end they "don't exist". It's useless to show "Wait..." in those cases. %}
             {% if can_play_token and not need_to_wait %}
         <form action="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/{{ s_idx }}/token" method="POST">
-            <button type="submit" class="btn btn-warning">{{ _("Play!") }}</button>
+            <button type="submit" class="tiny ui orange button">{{ _("Play!") }}</button>
         </form>
             {% elif (can_play_token and need_to_wait) or (not can_play_token and tokens_info[1] is not None) %}
-        <a class="btn btn-warning disabled">{{ _("Wait...") }}</a>
+        <a class="tiny ui orange button disabled">{{ _("Wait...") }}</a>
             {% else %}
-        <a class="btn disabled">{{ _("No tokens") }}</a>
+        <a class="tiny ui button disabled">{{ _("No tokens") }}</a>
             {% end %}
         {% end %}
     </td>

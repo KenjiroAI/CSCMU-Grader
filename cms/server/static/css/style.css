@@ -1,0 +1,101 @@
+/*
+* @Author: Wutthiphat Phuriphatwatthana
+* @Date:   2016-08-17 22:08:20
+* @Last Modified by:   Wutthiphat Phuriphatwatthana
+* @Last Modified time: 2016-08-19 03:13:58
+*/
+
+body {
+    background-color: #FFFFFF;
+}
+.ui.menu .item img.logo {
+    margin-right: 1.5em;
+}
+.main.container {
+    margin-top: 3em;
+}
+.ui.footer.segment {
+    margin: 5em 0em 0em;
+}
+
+body#login {
+    background-color: #DADADA;
+}
+body#login > .grid {
+    height: 100%;
+}
+body#login .column {
+    max-width: 450px;
+}
+
+#submission_list tbody tr td.status .details {
+    float: right;
+    cursor: pointer;
+}
+
+.user_test_list tbody tr td.status .details {
+    float: right;
+    cursor: pointer;
+}
+
+#overview_task td.public_score,
+#submission_list td.public_score {
+    font-weight: 700;
+}
+
+#overview_task td.public_score.undefined,
+#submission_list td.public_score.undefined {
+    color: #767678;
+}
+
+#overview_task td.public_score.score_0,
+#submission_list td.public_score.score_0 {
+    color: #DB2828;
+}
+
+#overview_task td.public_score.score_0_100,
+#submission_list td.public_score.score_0_100 {
+    color: #F2711C;
+}
+
+#overview_task td.public_score.score_100,
+#submission_list td.public_score.score_100 {
+    color: #21BA45;
+}
+
+#submission_detail .outcome {
+    font-weight: 700;
+}
+
+#submission_detail .undefined .outcome {
+    color: #767678;
+}
+
+#submission_detail .notcorrect .outcome {
+    color: #DB2828;
+}
+
+#submission_detail .partiallycorrect .outcome {
+    color: #F2711C;
+}
+
+#submission_detail .correct .outcome {
+    color: #21BA45;
+}
+
+.notifications {
+    position: fixed;
+    top: 60px;
+    width: 0;
+    right: 0;
+    bottom: 0;
+    overflow: visible;
+    z-index: 1;
+}
+
+.notifications .notification {
+    width: 250px;
+    float: right;
+    margin-right: 20px;
+    clear: both;
+}
