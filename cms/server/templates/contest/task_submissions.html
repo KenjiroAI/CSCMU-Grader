@@ -5,26 +5,30 @@
 $(document).on("click", "#submission_list tbody tr td.status .details", function (event) {
     var submission_id = $(this).parent().parent().attr("data-submission");
     var modal = $("#submission_detail");
-    var modal_body = modal.children(".modal-body");
-    modal_body.html('<div class="loading"><img src="{{ url_root }}/static/loading.gif"/>{{ _("loading...") }}</div>');
+    var modal_body = modal.children(".content");
+    modal_body.html('<div class="loading"><img src="{{ url_root }}/static/loading.gif"/>{{ _("Loading...") }}</div>');
     modal_body.load("{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions/" + submission_id + "/details", function() {
         $(".score_details .subtask .subtask-head").each(function () {
-            $(this).prepend("<i class=\"icon-chevron-right\"></i>");
+            $(this).prepend("<i class=\"chevron right icon\"></i>");
         });
         $(".score_details .subtask .subtask-head").click(function () {
             $(this).parent().toggleClass("open");
             if ($(this).parent().hasClass("open")) {
-                $(this).children("i").removeClass("icon-chevron-right").addClass("icon-chevron-down");
+                $(this).children("i").removeClass("right").addClass("down");
             } else {
-                $(this).children("i").removeClass("icon-chevron-down").addClass("icon-chevron-right");
+                $(this).children("i").removeClass("down").addClass("right");
             }
         });
-        $(".score_details table.testcase-list").addClass("table table-bordered table-striped");
+        $(".score_details table.testcase-list").addClass("ui celled unstackable table");
         $(".score_details table.testcase-list tbody tr:not(.undefined) td:nth-child(1)").each(function () {
             $(this).html("<span class=\"outcome\">" + $(this).text() + "</span>");
         });
+
+        modal.modal({onVisible: function(){
+                modal.modal('refresh');}
+            }).modal("show");
     });
-    modal.modal("show");
+    
 });
 
 function get_score_class (score, max_score) {
@@ -82,109 +86,28 @@ $(document).ready(function () {
 {% block core %}
 
 {% if actual_phase == 0 %}
+<h1 class="ui header">
+    <i class="code icon"></i>
+    <div class="content">
+        {{ task.title }}
+        <div class="sub header">{{ task.name }}</div>
+    </div>
+</h1>
 
-<div class="span9 task_submissions">
-
-<div class="page-header">
-    <h1>{% raw _("%(name)s (%(short_name)s) <small>submissions</small>") % {"name": task.title, "short_name": task.name} %}</small></h1>
+<div class="ui inverted segment">
+    <form class="ui inverted form" enctype="multipart/form-data" action="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submit" method="POST">
+        {% for idx, filename in enumerate(x.filename for x in task.submission_format) %}
+        <div class="field">
+            <label for="input{{ idx }}">{{ filename.replace(".%l", "") }}</label>
+            <input type="file" class="input-xlarge" id="input{{ idx }}" name="{{ filename }}"/>
+        </div>
+        {% end %}
+        <button type="submit" class="ui blue button">Submit</button>
+    </form>
 </div>
 
 
-<h2 style="margin-bottom: 10px">{{ _("Submit a solution") }}</h2>
-
-{% if submissions_left is not None %}
-    <div class="span5">
-        <p>
-        {{ _("You can submit %(submissions_left)s more solution(s).") % {"submissions_left": submissions_left} }}
-        </p>
-    </div>
-{% end %}
-
-<div id="submit_solution" class="row">
-    <div class="span5">
-        <form class="form-horizontal" enctype="multipart/form-data" action="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submit" method="POST">
-            <fieldset>
-{% for idx, filename in enumerate(x.filename for x in task.submission_format) %}
-                <div class="control-group">
-                    <label class="control-label" for="input{{ idx }}">{{ filename.replace(".%l", "") }}</label>
-                    <div class="controls">
-                        <input type="file" class="input-xlarge" id="input{{ idx }}" name="{{ filename }}"/>
-                    </div>
-                </div>
-{% end %}
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn btn-success">{{ _("Submit") }}</button>
-                        <button type="reset" class="btn">{{ _("Reset") }}</button>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-    </div>
-{% if len(task.submission_format) > 1 %}
-    <div class="span4">
-        <form class="form-horizontal" enctype="multipart/form-data" action="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submit" method="POST">
-            <fieldset>
-                <div class="control-group">
-                    <label class="control-label" for="input_zip">{{ _("submission.zip") }}</label>
-                    <div class="controls">
-                        <input type="file" class="input-xlarge" id="input_zip" name="submission"/>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn btn-success">{{ _("Submit") }}</button>
-                        <button type="reset" class="btn">{{ _("Reset") }}</button>
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-    </div>
-{% end %}
-</div>
-
-
-<h2 style="margin: 40px 0 10px">{{ _("Previous submissions") }}</h2>
-
-{% if tokens_contest != 0 and tokens_tasks != 0 %}
-<div style="padding-bottom:10px">
-    {% set tokens_info = contest.tokens_available(current_user.username, task.name, timestamp) %}
-    {% set can_play_token = tokens_info[0] > 0 or tokens_info[0] == -1 %}
-    {% set need_to_wait = tokens_info[2] is not None %}
-    {% if can_play_token %}
-        {% if tokens_info[0] == -1 %}
-            {{ _("Right now, you have infinite tokens available on this task.") }}
-        {% elif tokens_info[0] == 1 %}
-            {{ _("Right now, you have one token available on this task.") }}
-        {% else %}
-            {{ _("Right now, you have %(tokens)s tokens available on this task.") % { "tokens": tokens_info[0]} }}
-        {% end %}
-        {% if need_to_wait %}
-            {% set t = format_datetime_smart(tokens_info[2], timezone, locale=locale) %}
-            {% raw _("But you have to wait until %(expiration_time)s to use them.") % {"expiration_time": t} %}
-        {% end %}
-        {% if tokens_info[1] is not None %}
-            {% set t = format_datetime_smart(tokens_info[1], timezone, locale=locale) %}
-            {{ _("You will receive a new token at %(gen_time)s.") % {"gen_time": t} }}
-        {% else %}
-            {{ _("In the current situation, no more tokens will be generated.") }}
-        {% end %}
-    {% else %}
-        {{ _("Right now, you do not have tokens available for this task.") }}
-        {% if tokens_info[1] is not None %}
-            {% set t = format_datetime_smart(tokens_info[1], timezone, locale=locale) %}
-            {{ _("You will receive a new token at %(gen_time)s.") % {"gen_time": t} }}
-            {% if tokens_info[2] is not None and tokens_info[2] > tokens_info[1] %}
-                {% set t = format_datetime_smart(tokens_info[2], timezone, locale=locale) %}
-                {{ _("But you will have to wait until %(expiration_time)s to use it.") % {"expiration_time": t} }}
-            {% end %}
-        {% else %}
-            {{ _("In the current situation, no more tokens will be generated.") }}
-        {% end %}
-    {% end %}
-</div>
-{% end %}
-
+<h2>{{ _("Previous submissions") }}</h2>
 
 {% from cms.grading.scoretypes import get_score_type %}
 {% try %}
@@ -196,26 +119,7 @@ $(document).ready(function () {
 {% from cmscommon.datetime import utc %}
 {% set show_date = any(s.timestamp.replace(tzinfo=utc).astimezone(timezone).date() != datetime.datetime.utcnow().replace(tzinfo=utc).astimezone(timezone).date() for s in submissions) %}
 
-
-<table id="submission_list" class="table table-bordered table-striped">
-    <colgroup>
-{% if show_date %}
-        <col class="datetime"/>
-{% else %}
-        <col class="time"/>
-{% end %}
-        <col class="status"/>
-{% if score_type is not None and score_type.max_public_score != 0 and score_type.max_public_score != score_type.max_score %}
-        <col class="public_score"/>
-        <col class="total_score"/>
-{% else %}
-        <col class="total_score"/>
-{% end %}
-        <col class="files"/>
-{% if tokens_contest != 0 and tokens_tasks != 0 %}
-        <col class="token"/>
-{% end %}
-    </colgroup>
+<table id="submission_list" class="ui celled unstackable table">
     <thead>
         <tr>
 {% if show_date %}
@@ -240,9 +144,9 @@ $(document).ready(function () {
     {% if len(submissions) == 0 %}
         <tr>
         {% if tokens_contest != 0 and tokens_tasks != 0 %}
-            <td colspan="6" class="no_submissions">{{ _("no submissions yet") }}</td>
+            <td colspan="6" class="no_submissions">{{ _("No submissions yet") }}</td>
         {% else %}
-            <td colspan="5" class="no_submissions">{{ _("no submissions yet") }}</td>
+            <td colspan="5" class="no_submissions">{{ _("No submissions yet") }}</td>
         {% end %}
         </tr>
     {% else %}
@@ -255,19 +159,14 @@ $(document).ready(function () {
     </tbody>
 </table>
 
-<div class="modal fade hide wide" id="submission_detail">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&#xD7;</button>
-        <h3>{{ _("Submission details") }}</h3>
-    </div>
-    <div class="modal-body">
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">{{ _("Close") }}</a>
-    </div>
-</div>
-
-</div>
 {% end %}
 
+{% end %}
+
+{% block footer %}
+<div id="submission_detail" class="ui modal">
+    <div class="header">{{ _("Submission details") }}</div>
+    <div class="content">
+    </div>
+</div>
 {% end %}

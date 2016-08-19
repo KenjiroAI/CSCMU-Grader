@@ -485,19 +485,6 @@ td.token_rules p:last-child {
     cursor: pointer;
 }
 
-#submission_list tbody tr td.files,
-#submission_list tbody tr td.token {
-    padding: 3px;
-}
-
-#submission_list tbody tr td.files .btn,
-#submission_list tbody tr td.token .btn {
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    width: 100%;
-    white-space: nowrap;
-}
-
 #submission_list tbody tr td.token form {
     display: inline;
 }

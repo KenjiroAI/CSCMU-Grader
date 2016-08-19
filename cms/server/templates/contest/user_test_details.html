@@ -8,14 +8,14 @@
 
 {% if tr is not None and tr.compiled() %}
 <h3>{{ _("Compilation output") }}</h3>{% comment TODO: trim long outputs and add facility to see raw %}
-<table class="table table-bordered" style="table-layout: fixed;">
+<table class="ui celled table" style="table-layout: fixed;">
     <tbody>
         <tr>
-            <th>{{ _("Compilation outcome:") }}</th>
+            <td>{{ _("Compilation outcome:") }}</td>
             <td>{{ format_status_text(tr.compilation_text, _) }}</td>
         </tr>
         <tr>
-            <th>{{ _("Compilation time:") }}</th>
+            <td>{{ _("Compilation time:") }}</td>
             <td>
 {% if tr.compilation_time is None %}
     {{ _("N/A") }}
@@ -24,7 +24,7 @@
 {% end %}
             </td>
         </tr>
-            <th>{{ _("Memory used:") }}</th>
+            <td>{{ _("Memory used:") }}</td>
             <td>
 {% if tr.compilation_memory is None %}
     {{ _("N/A") }}

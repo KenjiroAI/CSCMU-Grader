@@ -71,27 +71,27 @@ CMS.CWSUtils.prototype.display_notification = function(
 
     // TODO somehow display timestamp, subject and text
 
-    var alert = $('<div class="alert alert-block notification">' +
-                  '<a class="close" data-dismiss="alert" href="#">×</a>' +
-                  '<h4 class="alert-heading"></h4>' +
+    var alert = $('<div class="ui message notification">' +
+                  '<i class="close icon"></i>' +
+                  '<div class="header"></div>' +
                   '</div>');
 
     if (type == "message") {
-        alert.children("h4").text($("#translation_new_message").text());
+        alert.children("div").text($("#translation_new_message").text());
     } else if (type == "announcement") {
-        alert.children("h4").text($("#translation_new_announcement").text());
+        alert.children("div").text($("#translation_new_announcement").text());
     } else if (type == "question") {
-        alert.children("h4").text($("#translation_new_answer").text());
+        alert.children("div").text($("#translation_new_answer").text());
     } else if (type == "notification") {
-        alert.children("h4").text(subject);
+        alert.children("div").text(subject);
         alert.append($("<span>" + text + "</span>"));
     }
 
     // The "warning" level is the default, so no check needed.
     if (level == "error") {
-        alert.addClass("alert-error");
+        alert.addClass("negative");
     } else if (level == "success") {
-        alert.addClass("alert-success");
+        alert.addClass("positive");
     }
 
     $("#notifications").prepend(alert);

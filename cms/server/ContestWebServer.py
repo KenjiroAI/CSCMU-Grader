@@ -577,7 +577,7 @@ class SelectContestHandler(BaseHandler):
                 self._("Happy Codings :P"),
                 ContestWebServer.NOTIFICATION_SUCCESS)
 
-            logger.success(
+            logger.info(
                 "Select Contest; user=%s, remote_ip=%s, contest=%s",
                 self.user.username,
                 self.request.remote_ip,
