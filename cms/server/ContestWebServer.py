@@ -600,6 +600,70 @@ class SelectContestHandler(BaseHandler):
         self.redirect("/")
 
 
+class ChangePasswordHandler(BaseHandler):
+    """Change password handler
+
+    """
+    def get(self):
+        self.render("change_password.html", **self.r_params)
+
+    def post(self):
+        user = self.get_current_user()
+        current_password = self.get_argument("current_password")
+        new_password = self.get_argument("new_password")
+        confirm_password = self.get_argument("confirm_password")
+
+        if new_password == "" or confirm_password == "":
+            self.application.service.add_notification(
+                self.current_user.username,
+                self.timestamp,
+                self._("Error"),
+                self._("Please enter new password"),
+                ContestWebServer.NOTIFICATION_ERROR)
+
+            self.redirect('/change_password')
+            return
+
+        if user.password == current_password:
+            if new_password == confirm_password:
+                attrs = {"password": new_password}
+                user.set_attrs(attrs)
+                self.sql_session.commit()
+                self.clear_cookie("login")
+
+                logger.info("Change Password; user=%s, pass=%s, remote_ip=%s",
+                        user.username, new_password, self.request.remote_ip)
+                self.application.service.add_notification(
+                        self.current_user.username,
+                        self.timestamp,
+                        self._("Success"),
+                        self._("You have been changed your password."),
+                        ContestWebServer.NOTIFICATION_SUCCESS)
+
+                self.redirect('/')
+                return
+
+            else:
+                self.application.service.add_notification(
+                        self.current_user.username,
+                        self.timestamp,
+                        self._("Error"),
+                        self._("You comfirm password not match."),
+                        ContestWebServer.NOTIFICATION_ERROR)
+        else:
+            self.application.service.add_notification(
+                    self.current_user.username,
+                    self.timestamp,
+                    self._("Error"),
+                    self._("Invalid password!"),
+                    ContestWebServer.NOTIFICATION_ERROR)
+            logger.warn(
+                "Change Password; user=%s, remote_ip=%s",
+                user.username, self.request.remote_ip)
+
+        self.redirect('/change_password')
+
+
 class MainHandler(BaseHandler):
     """Home page handler.
 
@@ -2171,4 +2235,5 @@ _cws_handlers = [
     (r"/printing", PrintingHandler),
     (r"/stl/(.*)", StaticFileGzHandler, {"path": config.stl_path}),
     (r"/contest/([1-9][0-9]*)", SelectContestHandler),
+    (r"/change_password", ChangePasswordHandler),
 ]
