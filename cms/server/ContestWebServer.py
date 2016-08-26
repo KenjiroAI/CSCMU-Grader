@@ -2236,5 +2236,7 @@ _cws_handlers = [
     (r"/printing", PrintingHandler),
     (r"/stl/(.*)", StaticFileGzHandler, {"path": config.stl_path}),
     (r"/contest/([1-9][0-9]*)", SelectContestHandler),
-    (r"/change_password", ChangePasswordHandler),
 ]
+
+if config.allow_change_password:
+    _cws_handlers.append((r"/change_password", ChangePasswordHandler))
