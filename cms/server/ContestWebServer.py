@@ -65,7 +65,8 @@ from sqlalchemy import func
 from werkzeug.http import parse_accept_header
 from werkzeug.datastructures import LanguageAccept
 
-from cms import SOURCE_EXT_TO_LANGUAGE_MAP, ConfigError, config, ServiceCoord
+from cms import SOURCE_EXT_TO_LANGUAGE_MAP, ConfigError, config, \
+    ServiceCoord, dos2unix
 from cms.io import WebService
 from cms.db import Session, Contest, User, Task, Question, Submission, Token, \
     File, UserTest, UserTestFile, UserTestManager, PrintJob, is_contest_id
@@ -1181,7 +1182,7 @@ class SubmitHandler(BaseHandler):
                 body = open(os.path.join(unpacked_dir, filename), "r").read()
                 self.request.files[filename] = [{
                     'filename': filename,
-                    'body': body
+                    'body': dos2unix(body)
                 }]
 
             archive.cleanup()
@@ -1209,7 +1210,7 @@ class SubmitHandler(BaseHandler):
         # (user_assigned_filename, content).
         files = {}
         for uploaded, data in self.request.files.iteritems():
-            files[uploaded] = (data[0]["filename"], data[0]["body"])
+            files[uploaded] = (data[0]["filename"], dos2unix(data[0]["body"]))
 
         # If we allow partial submissions, implicitly we recover the
         # non-submitted files from the previous submission. And put them
@@ -1722,7 +1723,7 @@ class UserTestHandler(BaseHandler):
                 body = open(os.path.join(unpacked_dir, filename), "r").read()
                 self.request.files[filename] = [{
                     'filename': filename,
-                    'body': body
+                    'body': dos2unix(body)
                 }]
 
             archive.cleanup()
@@ -1751,7 +1752,7 @@ class UserTestHandler(BaseHandler):
         # (user_assigned_filename, content).
         files = {}
         for uploaded, data in self.request.files.iteritems():
-            files[uploaded] = (data[0]["filename"], data[0]["body"])
+            files[uploaded] = (data[0]["filename"], dos2unix(data[0]["body"]))
 
         # If we allow partial submissions, implicitly we recover the
         # non-submitted files from the previous submission. And put them

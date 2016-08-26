@@ -119,6 +119,6 @@ SCORE_MODE_MAX_TOKENED_LAST = "max_tokened_last"
 
 from .util import ConfigError, mkdir, utf8_decoder, Address, ServiceCoord, \
     get_safe_shard, get_service_address, get_service_shards, \
-    default_argument_parser
+    default_argument_parser, dos2unix
 from .conf import config
 from .plugin import plugin_list, plugin_lookup

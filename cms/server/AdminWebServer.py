@@ -48,7 +48,8 @@ from sqlalchemy.exc import IntegrityError
 import tornado.web
 import tornado.locale
 
-from cms import config, ServiceCoord, get_service_shards, get_service_address
+from cms import config, ServiceCoord, get_service_shards, \
+    get_service_address, dos2unix
 from cms.io import WebService
 from cms.db import Session, Contest, User, Announcement, Question, Message, \
     Submission, File, Task, Dataset, Attachment, Manager, Testcase, \
@@ -867,7 +868,7 @@ class AddManagerHandler(BaseHandler):
 
         try:
             digest = self.application.service.file_cacher.put_file_content(
-                manager["body"],
+                dos2unix(manager["body"]),
                 "Task manager for %s" % task_name)
         except Exception as error:
             self.application.service.add_notification(
@@ -1204,11 +1205,11 @@ class AddTestcaseHandler(BaseHandler):
         try:
             input_digest = \
                 self.application.service.file_cacher.put_file_content(
-                    input_["body"],
+                    dos2unix(input_["body"]),
                     "Testcase input for task %s" % task_name)
             output_digest = \
                 self.application.service.file_cacher.put_file_content(
-                    output["body"],
+                    dos2unix(output["body"]),
                     "Testcase output for task %s" % task_name)
         except Exception as error:
             self.application.service.add_notification(
