@@ -41,7 +41,7 @@
           {% end %}
         {% end %}
       <tr>
-        <td><a href="{{ url_root }}/submission/{{ s.id }}/{{ shown_dataset.id }}">{{ str(s.timestamp) }}</a></td>
+        <td><a href="{{ url_root }}/submission/{{ s.id }}/{{ shown_dataset.id }}">{{ format_time(s.timestamp, timezone) }}</a></td>
         <td><a href="{{ url_root }}/user/{{ s.user.id }}">{{ s.user.username }}</a></td>
         <td>
           {% set sr = s.get_result(shown_dataset) %}
