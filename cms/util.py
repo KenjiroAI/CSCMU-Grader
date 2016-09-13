@@ -303,6 +303,10 @@ def _get_shard_from_addresses(service, addrs):
         i += 1
 
 
-def dos2unix(text):
-    text = text.replace("\r\n", "\n").replace("\n\r", "\n").replace("\r", "")
-    return text
+def dos2unix(body):
+    if type(body) == "str":
+        body = body.decode("utf-8")
+        body = body.replace("\r\n", "\n")
+        body = body.encode("utf-8")
+
+    return body
