@@ -61,7 +61,7 @@ from cms.grading.tasktypes import get_task_type_class
 from cms.grading.scoretypes import get_score_type_class
 from cms.server import file_handler_gen, get_url_root, \
     CommonRequestHandler
-from cmscommon.datetime import make_datetime, make_timestamp, get_system_timezone
+from cmscommon.datetime import make_datetime, make_timestamp, LocalTimezone
 
 
 logger = logging.getLogger(__name__)
@@ -225,7 +225,7 @@ class BaseHandler(CommonRequestHandler):
         """
         params = {}
         params["timestamp"] = make_datetime()
-        params["timezone"] = get_system_timezone()
+        params["timezone"] = LocalTimezone()
         params["contest"] = self.contest
         params["url_root"] = get_url_root(self.request.path)
         if self.contest is not None:
