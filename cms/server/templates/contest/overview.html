@@ -26,7 +26,6 @@
             <th>{{ _("Public Score") }}</th>
             <th>{{ _("Time limit") }}</th>
             <th>{{ _("Memory limit") }}</th>
-            <th>{{ _("Type") }}</th>
         </tr>
     </thead>
     <tbody>
@@ -35,7 +34,12 @@
 
         {% for t_iter in contest.tasks %}
             <tr>
-                <td><a href="{{ url_root }}/tasks/{{ encode_for_url(t_iter.name) }}/submissions">{{ t_iter.name }}</a></td>
+                <td>
+                    <a href="{{ url_root }}/tasks/{{ encode_for_url(t_iter.name) }}/submissions">{{ t_iter.name }}</a>
+                    {% if len(t_iter.statements) > 0 or t_iter.attachments != {} %}
+                        <a href="{{ url_root }}/tasks/{{ encode_for_url(t_iter.name) }}/description"><i class="circular green small file text outline icon"></i></a>
+                    {% end %}
+                </td>
                 <td>{{ t_iter.title }}</td>
                 {% set task = contest.get_task(t_iter.name) %}
                 {% set submissions = sql_session.query(Submission).filter(Submission.user == current_user).filter(Submission.task == task).all() %}
@@ -79,7 +83,6 @@
                         {{ _("N/A") }}
                     {% end %}
                 </td>
-                <td>{{ get_task_type(dataset=t_iter.active_dataset).name }}</td>
             </tr>
         {% end %}
     </tbody>

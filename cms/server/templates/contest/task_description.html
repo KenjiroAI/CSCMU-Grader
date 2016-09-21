@@ -7,101 +7,30 @@
 
 {% if actual_phase == 0 %}
 
-<div class="span9 task_description">
-
-
-<div class="page-header">
-    <h1>{% raw _("%(name)s (%(short_name)s) <small>description</small>") % {"name": task.title, "short_name": task.name} %}</h1>
-</div>
-
-
-<h2>{{ _("Statement") }}</h2>
-
-{% if len(task.statements) == 0 %}
-<div class="row statement no_statements">
-    <div class="span9">
-        {{ _("no statement available") }}
+<h1 class="ui header">
+    <i class="code icon"></i>
+    <div class="content">
+        {{ task.title }}
+        <div class="sub header">{{ task.name }}</div>
     </div>
-</div>
-{% elif len(task.statements) == 1 %}
-<div class="row statement one_statement">
-    <div class="span9">
-    {% for lang_code in task.statements %}
-        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(lang_code) }}" class="btn btn-large btn-success">{{ _("Download task statement") }}</a>
-    {% end %}
-    </div>
-</div>
-{% else %}
-<div class="statement many_statements">
-    <div class="main_statements">
-        <p>
-            {{ _("The statement for this task is available in multiple versions, in different languages.") }}
-            {{ _("You can see (and download) all of them using the list on the right.") }}
-            {{ _("Some suggested translations follow.") }}
-        </p>
-    {% set task_primary = json.loads(task.primary_statements) %}
-    {% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
-        {% if statement.language in task_primary %}
-        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}" class="btn btn-large btn-success">
-            {% if statement.language != statement.language_name %}
-                {% raw _("Statement in <b>%s</b>") % escape(statement.language_name) %}
-            {% else %}
-                {% raw _("Statement in %s") % escape(statement.language_name) %}
-            {% end %}
-        </a>
-        {% end %}
-    {% end %}
-    {% set user_primary = json.loads(current_user.primary_statements).get(task.name, []) %}
-    {% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
-        {% if statement.language in user_primary and statement.language not in task_primary %}
-        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}" class="btn btn-large">
-            {% if statement.language != statement.language_name %}
-                {% raw _("Statement in <b>%s</b>") % escape(statement.language_name) %}
-            {% else %}
-                {% raw _("Statement in %s") % escape(statement.language_name) %}
-            {% end %}
-        </a>
-        {% end %}
-    {% end %}
-    </div>
-    <div class="all_statements well">
-        <div>
-            <ul>
-    {% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
-                <li>
-                    <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}">
-        {% if statement.language != statement.language_name %}
-            {% raw _("<b>%s</b>") % escape(statement.language_name) %}
-        {% else %}
-            {% raw _("%s") % escape(statement.language_name) %}
-        {% end %}
-                    </a>
-                </li>
-    {% end %}
-            </ul>
-        </div>
-    </div>
-</div>
-{% end %}
+</h1>
 
+<div class="ui grid">
+<div class="eight wide column">
 
-<h2>{{ _("Some details") }}</h2>
+<h2 class="ui top attached header">{{ _("Task Details") }}</h2>
 
-<table class="table table-bordered table-nohover" style="table-layout: fixed">
-    <colgroup>
-        <col style="width: 20%"/>
-        <col style="width: 20%"/>
-        <col style="width: 60%"/>
-    </colgroup>
+<div class="ui attached segment">
+<table class="ui celled unstackable table">
     <tbody>
         <tr>
-            <th>{{ _("Type") }}</th>
-            <td colspan="2">{% set task_type = get_task_type(dataset=task.active_dataset) %}{{ task_type.name }}</td>
+            <td><strong>{{ _("Type") }}</strong></td>
+            <td>{% set task_type = get_task_type(dataset=task.active_dataset) %}{{ task_type.name }}</td>
         </tr>
 {% if task.active_dataset.time_limit is not None %}
         <tr>
-            <th>{{ _("Time limit") }}</th>
-            <td colspan="2">
+            <td><strong>{{ _("Time limit") }}</strong></td>
+            <td>
     {% if task.active_dataset.time_limit == 1.0 %}
         {{ _("%(seconds)g second") % {"seconds": task.active_dataset.time_limit} }}
     {% else %}
@@ -112,33 +41,14 @@
 {% end %}
 {% if task.active_dataset.memory_limit is not None %}
         <tr>
-            <th>{{ _("Memory limit") }}</th>
-            <td colspan="2">{{ _("%(mb)d MiB") % {"mb": task.active_dataset.memory_limit} }}</td>
+            <td><strong>{{ _("Memory limit") }}</strong></td>
+            <td>{{ _("%(mb)d MiB") % {"mb": task.active_dataset.memory_limit} }}</td>
         </tr>
-{% end %}
-{% set compilation_commands = task_type.get_compilation_commands([x.filename for x in task.submission_format]) %}
-{% if compilation_commands is not None %}
-{% set compilation_commands = {lang: compilation_commands[lang] for lang in contest.languages} %}
-<tr>
-    <th rowspan="{{ len(compilation_commands) }}">{{ _("Compilation commands") }}</th>
-    {% for i, (l, c) in enumerate(sorted(compilation_commands.iteritems())) %}
-        {% if i > 0 %}
-</tr>
-<tr>
-        {% end %}
-    <td>{{ LANGUAGE_NAMES[l] }}</td>
-    <td class="compilation_command_cell">
-{% for cmd in c %}
-        <code class="compilation_command">{{ " ".join(cmd) }}</code>
-{% end %}
-    </td>
-    {% end %}
-</tr>
 {% end %}
 
 {% if tokens_contest != 0 and tokens_tasks != 0 %}
 <tr>
-    <th>{{ _("Tokens") }}</th>
+    <td><strong>{{ _("Tokens") }}</strong></td>
     <td colspan="2" class="token_rules">
     {% if tokens_contest == 2 and tokens_tasks == 2 %}
         <p>
@@ -169,11 +79,88 @@
 {% end %}
     </tbody>
 </table>
+</div>
+
+<h2 class="ui top attached header">{{ _("Submission") }}</h2>
+<div class="ui attached segment">
+    <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submissions" class="ui blue button"><i class="upload icon"></i> {{ _("Submit your code") }}</a>
+</div>
+
+</div>
+
+<div class="eight wide column">
+<h2 class="ui top attached header">{{ _("Statement") }}</h2>
+
+{% if len(task.statements) == 0 %}
+<div class="ui attached segment">
+    <p>{{ _("No statement available") }}</p>
+</div>
+{% elif len(task.statements) == 1 %}
+<div class="ui attached segment statement one_statement">
+    {% for lang_code in task.statements %}
+        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(lang_code) }}" class="ui green button"><i class="download icon"></i> {{ _("Download task statement") }}</a>
+    {% end %}
+</div>
+{% else %}
+<div class="ui attached segment statement many_statements">
+    <div class="main_statements">
+        <p>
+            {{ _("The statement for this task is available in multiple versions, in different languages.") }}
+            {{ _("You can see (and download) all of them using the list on the right.") }}
+            {{ _("Some suggested translations follow.") }}
+        </p>
+    {% set task_primary = json.loads(task.primary_statements) %}
+    {% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
+        {% if statement.language in task_primary %}
+        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}" class="ui green button">
+            {% if statement.language != statement.language_name %}
+                {% if statement.language == "" %}
+                    {{ _("Download task statement") }}
+                {% else %}
+                    {% raw _("Statement in <strong>%s</strong>") % escape(statement.language_name) %}
+                {% end %}
+                
+            {% else %}
+                {% raw _("Statement in %s") % escape(statement.language_name) %}
+            {% end %}
+        </a>
+        {% end %}
+    {% end %}
+    {% set user_primary = json.loads(current_user.primary_statements).get(task.name, []) %}
+    {% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
+        {% if statement.language in user_primary and statement.language not in task_primary %}
+        <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}" class="ui green button">
+            {% if statement.language != statement.language_name %}
+                {% raw _("Statement in <strong>%s</strong>") % escape(statement.language_name) %}
+            {% else %}
+                {% raw _("Statement in %s") % escape(statement.language_name) %}
+            {% end %}
+        </a>
+        {% end %}
+    {% end %}
+    </div>
+    <div class="all_statements">
+        <div class="ui list">
+{% for statement in sorted(task.statements.itervalues(), key=lambda x: x.language_name) %}
+            <div class="item">
+                <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/statements/{{ encode_for_url(statement.language) }}">
+    {% if statement.language != statement.language_name %}
+        {% raw _("<strong>%s</strong>") % escape(statement.language_name) %}
+    {% else %}
+        {% raw _("%s") % escape(statement.language_name) %}
+    {% end %}
+                </a>
+            </div>
+{% end %}
+        </div>
+    </div>
+</div>
+{% end %}
 
 {% if task.attachments != {} %}
-    <h2>{{ _("Attachments") }}</h2>
-    <div id="attachments">
-        <ul>
+    <h2 class="ui top attached header">{{ _("Attachments") }}</h2>
+    <div id="attachments" class="ui attached segment">
+        <div class="ui middle aligned divided very relaxed list">
     {% from cmscommon import mimetypes %}
     {% for filename, attachment in sorted(task.attachments.items()) %}
         {% set mime_type = mimetypes.get_type_for_file_name(filename) %}
@@ -185,28 +172,26 @@
             {% set type_icon = None %}
         {% end %}
         {% set file_size = handler.application.service.file_cacher.get_size(attachment.digest) %}
-            <li>
-                <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/attachments/{{ encode_for_url(filename) }}" class="btn">
-            {% if type_icon is not None %}
-                    <img src="{{ url_root }}/static/img/mimetypes/{{ type_icon }}.png"/>
-            {% else %}
-                    <img src="{{ url_root }}/static/img/mimetypes/unknown.png"/>
-            {% end %}
-                    <span class="first_line">
-                        <span class="name">{{ filename }}</span>
-                        <span class="size">{{ format_size(file_size) }}</span>
-                    </span>
-            {% if type_icon is not None %}
+            <div class="item">
+                <div class="right floated content">
+                    <a href="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/attachments/{{ encode_for_url(filename) }}" class="ui green button">
+                    <i class="download icon"></i>
                     <span class="type">{{ _(type_name) }}</span>
-            {% end %}
-                </a>
-            </li>
+                    <span class="size">{{ format_size(file_size) }}</span>
+                  </a>
+                </div>
+                <div class="content">
+                    <span class="name">{{ filename }}</span>
+                </div>
+            </div>
     {% end %}
-        </ul>
+        </div>
     </div>
 {% end %}
+</div>
 
 </div>
+
 {% end %}
 
 {% end %}
