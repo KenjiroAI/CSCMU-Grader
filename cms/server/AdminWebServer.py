@@ -239,6 +239,11 @@ class BaseHandler(CommonRequestHandler):
                 .filter(Question.ignored == False)\
                 .count()  # noqa
         params["contest_list"] = self.sql_session.query(Contest).all()
+
+        # Main Contest
+        if hasattr(self, "main_contest"):
+            params["main_contest"] = self.main_contest
+
         return params
 
     def finish(self, *args, **kwds):
@@ -1622,13 +1627,13 @@ class RankingHandler(BaseHandler):
 
         # This massive joined load gets all the information which we will need
         # to generating the rankings.
-        self.contest = self.sql_session.query(Contest)\
-            .filter(Contest.id == contest_id)\
-            .options(joinedload('users'))\
-            .options(joinedload('users.submissions'))\
-            .options(joinedload('users.submissions.token'))\
-            .options(joinedload('users.submissions.results'))\
-            .first()
+        self.contest = Contest.get_from_id(
+            contest_id, self.sql_session)
+
+        # Main Contest
+        self.main_contest_id = config.main_contest_id
+        self.main_contest = Contest.get_from_id(
+            self.main_contest_id, self.sql_session)
 
         self.r_params = self.render_params()
         if format == "txt":
