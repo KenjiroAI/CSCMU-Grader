@@ -1493,6 +1493,7 @@ class EvaluationService(TriggeredService):
     @rpc_method
     @with_post_finish_lock
     def invalidate_submission(self,
+                              contest_id=None,
                               submission_id=None,
                               dataset_id=None,
                               user_id=None,
@@ -1525,6 +1526,10 @@ class EvaluationService(TriggeredService):
         """
         logger.info("Invalidation request received.")
 
+        if {contest_id, user_id, task_id, submission_id} == {None}:
+            logger.info("Invalid request!")
+            return
+
         # Validate arguments
         # TODO Check that all these objects belong to this contest.
         if level not in ("compilation", "evaluation"):
@@ -1535,7 +1540,7 @@ class EvaluationService(TriggeredService):
             # First we load all involved submissions.
             submissions = get_submissions(
                 # Give contest_id only if all others are None.
-                self.contest_id
+                contest_id
                 if {user_id, task_id, submission_id} == {None}
                 else None,
                 user_id, task_id, submission_id, session)
@@ -1559,7 +1564,7 @@ class EvaluationService(TriggeredService):
             # we remove them.
             submission_results = get_submission_results(
                 # Give contest_id only if all others are None.
-                self.contest_id
+                contest_id
                 if {user_id, task_id, submission_id, dataset_id} == {None}
                 else None,
                 user_id, task_id, submission_id, dataset_id, session)

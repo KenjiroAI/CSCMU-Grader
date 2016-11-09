@@ -5,7 +5,8 @@
 <button onclick="cmsrpc_request('{{ url_root }}',
                  'EvaluationService', 0,
                  'invalidate_submission',
-                 {'{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
+                 {'contest_id': {{ contest.id }},
+                  '{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
                  {% if reevaluation_par_dataset_id is not None %}
                   'dataset_id': {{ reevaluation_par_dataset_id }},
                  {% end %}
@@ -16,7 +17,8 @@
 <button onclick="cmsrpc_request('{{ url_root }}',
                  'EvaluationService', 0,
                  'invalidate_submission',
-                 {'{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
+                 {'contest_id': {{ contest.id }},
+                  '{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
                  {% if reevaluation_par_dataset_id is not None %}
                   'dataset_id': {{ reevaluation_par_dataset_id }},
                  {% end %}
@@ -27,7 +29,8 @@
 <button onclick="cmsrpc_request('{{ url_root }}',
                  'ScoringService', 0,
                  'invalidate_submission',
-                 {'{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
+                 {'contest_id': {{ contest.id }},
+                  '{{ reevaluation_par_name }}_id': {{ reevaluation_par_value }},
                  {% if reevaluation_par_dataset_id is not None %}
                   'dataset_id': {{ reevaluation_par_dataset_id }},
                  {% end %}

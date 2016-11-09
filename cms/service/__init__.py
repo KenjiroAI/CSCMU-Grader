@@ -81,8 +81,7 @@ def get_submissions(contest_id=None, user_id=None, task_id=None,
     if task_id is not None:
         query = query.filter(Submission.task_id == task_id)
     if contest_id is not None:
-        query = query.join(User).filter(User.contest_id == contest_id)\
-            .join(Task).filter(Task.contest_id == contest_id)
+        query = query.join(User).join(Task).filter(Task.contest_id == contest_id)
     return query.all()
 
 
@@ -143,8 +142,7 @@ def get_submission_results(contest_id=None, user_id=None, task_id=None,
     if task_id is not None:
         query = query.filter(Submission.task_id == task_id)
     if contest_id is not None:
-        query = query.join(User).filter(User.contest_id == contest_id)\
-            .join(Task).filter(Task.contest_id == contest_id)
+        query = query.join(User).join(Task).filter(Task.contest_id == contest_id)
     return query.all()
 
 
