@@ -94,6 +94,18 @@ $(document).ready(function () {
     </div>
 </h1>
 
+{% if task.max_submission_number and task.max_submission_number > 0 %}
+<div class="ui icon negative message">
+    <i class="warning sign icon"></i>
+    <div class="content">
+        <div class="header">
+            {{ _("Submission is LIMITED!") }}
+        </div>
+        <p>{{ _("You can only upload") }} {{ task.max_submission_number }} {{ _("submission(s) for this task.") }}</p>
+    </div>
+</div>
+{% end %}
+
 <div class="ui inverted segment">
     <form class="ui inverted form" enctype="multipart/form-data" action="{{ url_root }}/tasks/{{ encode_for_url(task.name) }}/submit" method="POST">
         {% for idx, filename in enumerate(x.filename for x in task.submission_format) %}
