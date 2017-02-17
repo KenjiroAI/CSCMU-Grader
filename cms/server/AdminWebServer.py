@@ -44,6 +44,7 @@ import zipfile
 
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 
 import tornado.web
 import tornado.locale
@@ -1455,7 +1456,9 @@ class AddTaskHandler(BaseHandler):
             self.get_string(attrs, "score_mode")
 
             # Create the task.
-            attrs["num"] = len(self.contest.tasks)
+            attrs["num"] = self.sql_session.query(func.max(Task.num))\
+                                           .filter(Task.contest == self.contest)\
+                                           .scalar() + 1
             attrs["contest"] = self.contest
             task = Task(**attrs)
             self.sql_session.add(task)
