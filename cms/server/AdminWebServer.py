@@ -1456,9 +1456,14 @@ class AddTaskHandler(BaseHandler):
             self.get_string(attrs, "score_mode")
 
             # Create the task.
-            attrs["num"] = self.sql_session.query(func.max(Task.num))\
+            max_task_num = self.sql_session.query(func.max(Task.num))\
                                            .filter(Task.contest == self.contest)\
-                                           .scalar() + 1
+                                           .scalar()
+            if max_task_id:
+                attrs["num"] = max_task_num + 1
+            else:
+                attrs["num"] = 0
+
             attrs["contest"] = self.contest
             task = Task(**attrs)
             self.sql_session.add(task)
