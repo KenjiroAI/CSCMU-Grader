@@ -1459,7 +1459,7 @@ class AddTaskHandler(BaseHandler):
             max_task_num = self.sql_session.query(func.max(Task.num))\
                                            .filter(Task.contest == self.contest)\
                                            .scalar()
-            if max_task_id:
+            if max_task_num:
                 attrs["num"] = max_task_num + 1
             else:
                 attrs["num"] = 0
